@@ -7,8 +7,8 @@ contract Doppler {
   mapping(address => Song[]) songs;
   mapping(address=> mapping(bytes => Song[])) playlists;
 
-  event Songs(address owner, bytes songName, bytes content);
-  event Playlists(address owner, bytes playlistName, bytes[] songs);
+  event Songs(address indexed owner, bytes songName, bytes content);
+  event Playlists(address indexed owner, bytes playlistName, uint[] indexes);
   
   struct Song {
     bytes songName;
@@ -26,14 +26,19 @@ contract Doppler {
     Song[] storage userSongs = songs[msg.sender];
     userSongs.push(song);
     songs[msg.sender] = userSongs;
+    Songs(msg.sender,songName,contentHash);
   }
 
-  function addPlaylist(bytes playlistName, uint[] songIndexes) public {
+  function addPlaylist(bytes playlistName, uint[] songIndexes)
+    public
+    returns(bool)
+  {
     Song[] memory userSongs = songs[msg.sender];
     for (uint i = 0; i < songIndexes.length; i++) {
         Song memory playlistSong = userSongs[songIndexes[i]];
         playlists[msg.sender][playlistName].push(playlistSong);
     }
+    Playlists(msg.sender, playlistName, songIndexes);
   }
 
 }
