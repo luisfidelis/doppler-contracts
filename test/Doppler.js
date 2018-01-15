@@ -39,8 +39,6 @@ contract('Doppler', async accounts => {
                 'content'
             ])
             assert.equal(args.owner, anyUser, "The user must be the song's owner")
-            const songs = await doppler.songs.call()
-            console.log(songs)
         })
 
     })
@@ -49,15 +47,15 @@ contract('Doppler', async accounts => {
 
         it("should add a new song", async () => {
             await doppler.addSong(
-                'test2',
-                'test2',
+                "test2",
+                "test2",
                 {from: anyUser}
             )
         })
 
         it("should add a new playlist", async () => {
             const {logs} = await doppler.addPlaylist(
-                'teste',
+                "teste",
                 [0,1],
                 {from: anyUser}
             )
@@ -69,8 +67,6 @@ contract('Doppler', async accounts => {
                 'indexes'
             ])
             assert.equal(args.owner, anyUser, "The user must be the playlist's owner")
-            const playlist = await doppler.playlists.call()
-            console.log(playlist)
         })
 
     })
