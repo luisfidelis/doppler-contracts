@@ -41,6 +41,13 @@ contract('Doppler', async accounts => {
             assert.equal(args.owner, anyUser, "The user must be the song's owner")
         })
 
+        it("should return user's songs", async () => {
+            const returnOf = await doppler.getMySongs(
+                {from: anyUser}
+            )
+            console.log(returnOf)
+        })
+
     })
 
     context('Playlists', () => {

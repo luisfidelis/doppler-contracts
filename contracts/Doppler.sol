@@ -4,28 +4,59 @@ contract Doppler {
   
   address public owner;
 
-  mapping(address => Song[]) songs;
-  mapping(address=> mapping(bytes => Song[])) playlists;
+  mapping(address => User) profiles;
 
   event Songs(address indexed owner, bytes songName, bytes content);
   event Playlists(address indexed owner, bytes playlistName, uint[] indexes);
+  event UserCreated(address indexed owner, string nickname);
   
+  struct User {
+    string nickname;
+    Song[] songs;
+    Playlist[] playlists;
+    uint active;
+  }
+
   struct Song {
     bytes songName;
     bytes content;
+  }
+
+  struct Playlist {
+    bytes playlistName;
+    Song[] songs;
+  }
+
+  modifier newUser() {
+    require(!activeUser());
+    _;
   }
 
   function Dopler() {
     owner = msg.sender;
   }
 
-  function addSong(bytes songName, bytes contentHash) public {
+  function createUser(string _nickname)
+    newUser
+    public
+    returns(bool)
+  {
+    User user = User(_nickname,[],1);
+    profiles[msg.sender] = user;
+    UserCreated(msg.sender, _nickname);
+    return true;
+  }
+
+  function addSong(bytes songName, bytes contentHash) 
+    public
+  {
+    require(activeUser());
     Song memory song = Song(songName,contentHash);
     song.songName = songName;
     song.content = contentHash;
-    Song[] storage userSongs = songs[msg.sender];
+    Song[] storage userSongs = profiles[msg.sender].songs;
     userSongs.push(song);
-    songs[msg.sender] = userSongs;
+    profiles[msg.sender].songs = userSongs;
     Songs(msg.sender,songName,contentHash);
   }
 
@@ -33,12 +64,23 @@ contract Doppler {
     public
     returns(bool)
   {
-    Song[] memory userSongs = songs[msg.sender];
+    require(activeUser());
+    Song[] memory userSongs = profiles[msg.sender].songs;
+    Song[] memory playlistSongs;
     for (uint i = 0; i < songIndexes.length; i++) {
         Song memory playlistSong = userSongs[songIndexes[i]];
-        playlists[msg.sender][playlistName].push(playlistSong);
+        playlistSongs.push(playlistSong);
     }
+    Playlist playlist = Playlist(playlistName, playlistSongs);
+    profiles[msg.sender].playlists.push(playlist);
     Playlists(msg.sender, playlistName, songIndexes);
+  }
+
+  function activeUser() 
+    view
+    returns(bool)
+  {
+    return profiles[msg.sender].active == 1;
   }
 
 }
