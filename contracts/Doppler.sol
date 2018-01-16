@@ -52,11 +52,7 @@ contract Doppler {
   {
     require(activeUser());
     Song memory song = Song(songName,contentHash);
-    song.songName = songName;
-    song.content = contentHash;
-    Song[] storage userSongs = profiles[msg.sender].songs;
-    userSongs.push(song);
-    profiles[msg.sender].songs = userSongs;
+    profiles[msg.sender].songs.push(song);
     Songs(msg.sender,songName,contentHash);
   }
 
